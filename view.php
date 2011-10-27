@@ -8,16 +8,30 @@ body {
 	margin: 0;
 }
 .node {
+	position: absolute;
 	font-family: sans-serif;
 	font-size: 7pt;
 	overflow: hidden;
 	word-wrap: break-word;
 	text-align: center;
+	color: black;
+}
+.popup {
+	position: absolute;
+	border: 1px solid black;
+	background-color: #FFFFDD;
+	word-wrap: break-word;
+	padding: 2px;
+}
+.selected {
+	background-color: #4040FF !important;
+	color: white;
 }
 </style>
 <script>
 var PADDING = 2;
 var TOP_PADDING = 10;
+var POPUP_DISTANCE = 10;
 
 function colorStr(c) {
 	var r = Math.floor(c).toString(16);
@@ -30,7 +44,6 @@ function randomColor() {
 
 $(document).ready(function() {
 	var rootDiv = $('<div>')
-		.css('position', 'absolute')
 		.css('top', '0')
 		.css('left', '0')
 		.css('width', '100%')
@@ -90,12 +103,12 @@ $(document).ready(function() {
 				var right  = Math.floor(PADDING+x+childW);
 				var bottom = Math.floor(TOP_PADDING+y+rowHeight);
 				var childDiv = $('<div>')
-					.css('position', 'absolute')
 					.css('left',   left+'px')
 					.css('top',    top +'px')
 					.css('width',  right-left+'px')
 					.css("height", bottom-top+'px')
 					.addClass('node')
+					.data('mapdata', child)
 					.appendTo(div);
 				x += childW;
 				populate(childDiv, child, depth+1);
@@ -118,5 +131,53 @@ $(document).ready(function() {
 	//$(window).resize(arrange);
 
 	arrange();
+
+	var popup = $('<div>')
+		.addClass('popup')
+		.appendTo($('body'));
+
+	$('.node').live('mousemove', function(e) {
+		if (e.clientX < rootDiv.width()/2) {
+			popup.css('left' , e.clientX+POPUP_DISTANCE);
+			popup.css('right', '');
+		} else {
+			popup.css('left', '');
+			popup.css('right' , $(document).width() - e.clientX + POPUP_DISTANCE);
+		}
+
+		if (e.clientY < rootDiv.height()/2) {
+			popup.css('top' , e.clientY+POPUP_DISTANCE);
+			popup.css('bottom', '');
+		} else {
+			popup.css('top', '');
+			popup.css('bottom' , $(document).height() - e.clientY + POPUP_DISTANCE);
+		}
+		popup.css('max-width' , rootDiv.width ()/2 - POPUP_DISTANCE*2);
+		popup.css('max-height', rootDiv.height()/2 - POPUP_DISTANCE*2);
+
+
+		var mapdata = $(e.target).data('mapdata');
+		var html = '';
+		if (mapdata.mangledName !== undefined)
+			html += '<b>Mangled name</b>: ' + mapdata.mangledName + '<br>';
+		else
+			html += mapdata.treeName + '<br>';
+
+		if (mapdata.demangledName !== undefined)
+			html += '<b>Demangled name</b>: ' + mapdata.demangledName + '<br>';
+
+		if (mapdata.total !== undefined)
+			html += '<b>Total size</b>: ' + mapdata.total + ' bytes<br>';
+		else
+			html += '<b>Size</b>: ' + mapdata.size + ' bytes<br>';
+
+		if (mapdata.address !== undefined)
+			html += '<b>Address</b>: 0x' + mapdata.address.toString(16) + '<br>';
+
+		popup.html(html);
+
+		$('.selected').removeClass('selected');
+		$(e.target).addClass('selected');
+	});
 });
 </script>
