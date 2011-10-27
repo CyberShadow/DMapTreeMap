@@ -47,14 +47,15 @@ $(document).ready(function() {
 		.css('top', '0')
 		.css('left', '0')
 		.css('width', '100%')
-		.addClass('node')
 		.appendTo($('body'));
 
-	function populate(div, data, depth) {
-		var colorMask = (0xFF >> depth) * 0x010101;
+	function populate(div, data, path) {
+		var colorMask = (0xFF >> (path.length+1)) * 0x010101;
 
 		div
 			.css('background-color', colorStr(data.color))
+			.addClass('node')
+			.data('mapdata', data)
 			.text(data.treeName);
 
 		var children = [];
@@ -96,6 +97,9 @@ $(document).ready(function() {
 			var x = 0;
 			for (var i=0; i<n; i++) {
 				var child = children.shift();
+				path.push(child.treeName);
+				child.treePath = path.join('.');
+
 				child.color = ((randomColor() & colorMask) | 0x202020 | (i%2*0x101010)) ^ data.color;
 				var childW = child.size / rowTotal * w;
 				var left   = Math.floor(PADDING+x);
@@ -107,11 +111,11 @@ $(document).ready(function() {
 					.css('top',    top +'px')
 					.css('width',  right-left+'px')
 					.css("height", bottom-top+'px')
-					.addClass('node')
-					.data('mapdata', child)
 					.appendTo(div);
 				x += childW;
-				populate(childDiv, child, depth+1);
+
+				populate(childDiv, child, path);
+				path.pop();
 			}
 
 			y += rowHeight;
@@ -123,9 +127,9 @@ $(document).ready(function() {
 			.css("height", $(document).height())
 			.empty();
 
-		treeData.treeName = 'Program';
+		treeData.treeName = treeData.treePath = 'Program';
 		treeData.color = 0xFFFFFF;
-		populate(rootDiv, treeData, 1);
+		populate(rootDiv, treeData, []);
 	}
 
 	var resizeTimer = null;
@@ -169,7 +173,7 @@ $(document).ready(function() {
 		if (mapdata.mangledName !== undefined)
 			html += '<b>Mangled name</b>: ' + mapdata.mangledName + '<br>';
 		else
-			html += mapdata.treeName + '<br>';
+			html += mapdata.treePath + '<br>';
 
 		if (mapdata.demangledName)
 			html += '<b>Demangled name</b>: ' + mapdata.demangledName + '<br>';
