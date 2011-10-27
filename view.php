@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<title>Map TreeMap viewer for map file <?=htmlspecialchars($_GET['id'])?></title>
+<title>D Map TreeMap Viewer for map file <?=htmlspecialchars($_GET['id'])?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <?='<script src="data/' . htmlspecialchars($_GET['id']) . '.json"></script>'?>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
@@ -9,7 +9,7 @@ body {
 }
 .node {
 	font-family: sans-serif;
-	font-size: 6pt;
+	font-size: 7pt;
 	overflow: hidden;
 	word-wrap: break-word;
 	text-align: center;
@@ -19,18 +19,30 @@ body {
 var PADDING = 2;
 var TOP_PADDING = 10;
 
+function colorStr(c) {
+	var r = Math.floor(c).toString(16);
+	while (r.length<6) r = '0'+r;
+	return '#'+r;
+}
+function randomColor() {
+	return Math.floor(Math.random()*0x1000000);
+}
+
 $(document).ready(function() {
 	var rootDiv = $('<div>')
 		.css('position', 'absolute')
 		.css('top', '0')
 		.css('left', '0')
 		.css('width', '100%')
-		.css("height", $(document).height())
 		.addClass('node')
 		.appendTo($('body'));
 
-	function populate(div, data) {
-		div.text(data.treeName);
+	function populate(div, data, depth) {
+		var colorMask = (0xFF >> depth) * 0x010101;
+
+		div
+			.css('background-color', colorStr(data.color))
+			.text(data.treeName);
 
 		var children = [];
 		for (var name in data.children) {
@@ -71,18 +83,22 @@ $(document).ready(function() {
 			var x = 0;
 			for (var i=0; i<n; i++) {
 				var child = children.shift();
+				child.color = ((randomColor() & colorMask) | 0x202020 | (i%2*0x101010)) ^ data.color;
 				var childW = child.size / rowTotal * w;
+				var left   = Math.floor(PADDING+x);
+				var top    = Math.floor(TOP_PADDING+y);
+				var right  = Math.floor(PADDING+x+childW);
+				var bottom = Math.floor(TOP_PADDING+y+rowHeight);
 				var childDiv = $('<div>')
 					.css('position', 'absolute')
-					.css('left',   PADDING+x+'px')
-					.css('top',    TOP_PADDING+y+'px')
-					.css('width',  childW+'px')
-					.css("height", rowHeight+'px')
-					.css('background-color', '#'+Math.floor(Math.random()*0x1000000).toString(16))
+					.css('left',   left+'px')
+					.css('top',    top +'px')
+					.css('width',  right-left+'px')
+					.css("height", bottom-top+'px')
 					.addClass('node')
 					.appendTo(div);
 				x += childW;
-				populate(childDiv, child);
+				populate(childDiv, child, depth+1);
 			}
 
 			y += rowHeight;
@@ -90,11 +106,16 @@ $(document).ready(function() {
 	}
 
 	function arrange() {
-		rootDiv.empty();
+		rootDiv
+			.css("height", $(document).height())
+			.empty();
 
 		treeData.treeName = 'Program';
-		populate(rootDiv, treeData);
+		treeData.color = 0xFFFFFF;
+		populate(rootDiv, treeData, 1);
 	}
+
+	//$(window).resize(arrange);
 
 	arrange();
 });
