@@ -41,7 +41,9 @@ void main(string[] args)
 
 		auto sym = map.symbols[i].name;
 		int p = 0;
-		sym = decodeDmdString(sym, p);
+		auto decoded = decodeDmdString(sym, p);
+		if (decoded.length)
+			sym = decoded;
 
 		if (sym.startsWith("__D"))
 			sym = sym[1..$];

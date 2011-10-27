@@ -171,7 +171,7 @@ $(document).ready(function() {
 		else
 			html += mapdata.treeName + '<br>';
 
-		if (mapdata.demangledName !== undefined)
+		if (mapdata.demangledName)
 			html += '<b>Demangled name</b>: ' + mapdata.demangledName + '<br>';
 
 		if (mapdata.total !== undefined)
