@@ -128,7 +128,15 @@ $(document).ready(function() {
 		populate(rootDiv, treeData, 1);
 	}
 
-	//$(window).resize(arrange);
+	var resizeTimer = null;
+	$(window).resize(function() {
+		if (resizeTimer)
+			clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(function() {
+			resizeTimer = null;
+			arrange();
+		}, 100);
+	});
 
 	arrange();
 
