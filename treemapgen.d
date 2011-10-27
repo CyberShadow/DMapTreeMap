@@ -50,26 +50,37 @@ void main(string[] args)
 		string[] segments;
 		if (dem != sym)
 		{
-			segments = dem.replace("...", "***").split(".");
+			enum SUB_SPACE  = '\xFF';
+			enum SUB_PERIOD = '\xFE';
+
+			int plevel = 0;
+			auto str = dem.dup;
+			foreach (ref c; str)
+				if (c=='(')
+					plevel++;
+				else
+				if (c==')')
+					plevel--;
+				else
+				if (c==' ' && plevel)
+					c = SUB_SPACE;
+				else
+				if (c=='.' && plevel)
+					c = SUB_PERIOD;
+
+			segments = assumeUnique(str).replace("...", "***").split(".");
 			foreach (ref seg; segments)
 			{
-				int plevel = 0;
-				foreach (ref c; cast(char[])seg) // fuck constness
-					if (c=='(')
-						plevel++;
-					else
-					if (c==')')
-						plevel--;
-					else
-					if (c==' ' && plevel)
-						c = '_';
-
 				if (seg.startsWith("extern (C) "))
 					seg = seg["extern (C) ".length..$];
 				if (seg.lastIndexOf(' ')>=0)
 					seg = seg[seg.lastIndexOf(' ')+1..$];
 				if (seg.indexOf('(')>=0)
 					seg = seg[0..seg.indexOf('(')];
+
+				seg = seg
+					.replace([SUB_SPACE], " ")
+					.replace([SUB_PERIOD], ".");
 			}
 		}
 		else
