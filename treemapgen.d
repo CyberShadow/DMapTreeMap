@@ -143,6 +143,23 @@ void main(string[] args)
 				dem = cppSymbols[sym];
 			}
 			else
+			if (sym.startsWith("?"))
+			{
+				segments = ["C++ symbols", sym];
+			}
+			else
+			if (sym.startsWith("__imp__"))
+			{
+				segments = ["Imports", sym[7..$]];
+			}
+			else
+			if (sym.startsWith("_"))
+			{
+				auto str = sym;
+				while (str.startsWith("_")) str = str[1..$];
+				segments = ["C symbols", str];
+			}
+			else
 				segments = [sym];
 		}
 
