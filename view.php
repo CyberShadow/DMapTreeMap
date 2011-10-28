@@ -22,6 +22,7 @@ body {
 	background-color: #FFFFDD;
 	word-wrap: break-word;
 	padding: 2px;
+	overflow: auto;
 }
 .selected {
 	background-color: #4040FF !important;
