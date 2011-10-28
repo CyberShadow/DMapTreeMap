@@ -16,7 +16,7 @@ final class MapFile
 {
 	this(string fileName)
 	{
-		auto lines = splitLines(cast(string)read(fileName));
+		auto lines = splitAsciiLines(cast(string)read(fileName));
 		bool parsing = false;
 		foreach (line; lines)
 		{
