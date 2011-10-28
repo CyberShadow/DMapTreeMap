@@ -64,6 +64,15 @@ void main(string[] args)
 			continue;
 
 		auto sym = map.symbols[i].name;
+
+		bool end;
+		if (sym.startsWith(END_PREFIX))
+			end = true,
+			sym = sym[END_PREFIX.length..$];
+
+		if (end && sym.endsWith("crtend.o (.eh_frame)"))
+			continue;
+
 		int p = 0;
 		auto decoded = decodeDmdString(sym, p);
 		if (decoded.length)
@@ -94,7 +103,7 @@ void main(string[] args)
 				if (c=='.' && plevel)
 					c = SUB_PERIOD;
 
-			segments = assumeUnique(str).replace("...", "***").split(".");
+			segments = assumeUnique(str).replace("...", [SUB_PERIOD, SUB_PERIOD, SUB_PERIOD]).split(".");
 			foreach (ref seg; segments)
 			{
 				if (seg.startsWith("extern (C) "))
@@ -162,6 +171,8 @@ void main(string[] args)
 			else
 				segments = [sym];
 		}
+		if (end)
+			segments = ["Afterpadding"] ~ segments;
 
 		auto node = &root;
 		foreach (segment; segments[0..$-1])

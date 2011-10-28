@@ -6,10 +6,13 @@ import std.algorithm : sort;
 
 import ae.utils.text;
 
+enum END_PREFIX = "END\t";
+
 struct Symbol
 {
 	ulong address;
 	string name;
+	size_t index;
 }
 
 final class MapFile
@@ -18,7 +21,7 @@ final class MapFile
 	{
 		auto lines = splitAsciiLines(cast(string)read(fileName));
 		bool parsing = false;
-		foreach (line; lines)
+		foreach (index, line; lines)
 		{
 			// OPTLINK format
 			if (parsing)
@@ -30,6 +33,7 @@ final class MapFile
 					auto line2 = line[21..$];
 					s.name = line2[0..line2.indexOf(' ')];
 					s.address = fromHex(line2[$-8..$]);
+					s.index = index;
 					symbols ~= s;
 				}
 			}
@@ -38,20 +42,34 @@ final class MapFile
 					parsing = true;
 				
 			// LD format
-			auto stripped = line.strip();
 			//                 0x00000000080eaa10                _D20TypeInfo_E2WA6Nation6__initZ
-			if (stripped.length>10 && stripped[0..2]=="0x")
+			//  .plt           0x00000000004415c0      0x8c0 /usr/lib/gcc/x86_64-linux-gnu/4.6.1/../../../x86_64-linux-gnu/crt1.o
+			if (line.length > 45 && line[15..18]==" 0x")
 			{
-				auto words = stripped.split();
-				if (words.length != 2)
+				auto seg  = strip(line[0..16]);
+				if (seg == ".comment")
 					continue;
-				Symbol s;
-				s.name = words[1];
-				s.address = fromHex!ulong(words[0][2..$]);
-				symbols ~= s;
+				auto addr = fromHex!ulong(strip(line[18..34]));
+				auto rest = split(strip(line[34..$]));
+				ulong size;
+				if (rest.length && rest[0].startsWith("0x"))
+				{
+					size = fromHex!ulong(rest[0][2..$]);
+					rest = rest[1..$];
+				}
+				string symName = rest.join(" ");
+				if (symName.startsWith(". =") ||
+					symName.startsWith("_end =") ||
+					symName.startsWith("PROVIDE ("))
+					continue;
+				string name = symName.length ? seg.length ? symName ~ " (" ~ seg ~ ")" : symName : seg;
+				symbols ~= Symbol(addr, name, index);
+
+				if (addr && size)
+					symbols ~= Symbol(addr+size, END_PREFIX ~ name, index);
 			}
 		}
-		sort!q{a.address < b.address}(symbols);
+		sort!q{a.address == b.address ? a.index < b.index : a.address < b.address}(symbols);
 	}
 
 	Symbol[] symbols;
