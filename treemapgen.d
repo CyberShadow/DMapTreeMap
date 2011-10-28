@@ -134,7 +134,8 @@ void main(string[] args)
 					}
 					catch (Exception e)
 					{
-						segments ~= str;
+						if (str != "Z")
+							segments ~= str;
 						str = null;
 					}
 				}
