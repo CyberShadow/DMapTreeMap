@@ -142,25 +142,19 @@ void main(string[] args)
 			}
 			else
 			if (sym.startsWith("__d_"))
-			{
 				segments = ["D internals", sym[4..$]];
-				//dem = segments.join(".");
-			}
 			else
-			if (sym in cppSymbols)
-			{
+			if (sym.startsWith("_d_"))
+				segments = ["D internals", sym[3..$]];
+			else
+			/*if (sym in cppSymbols)
 				dem = cppSymbols[sym];
-			}
-			else
+			else*/
 			if (sym.startsWith("?"))
-			{
 				segments = ["C++ symbols", sym];
-			}
 			else
 			if (sym.startsWith("__imp__"))
-			{
 				segments = ["Imports", sym[7..$]];
-			}
 			else
 			if (sym.startsWith("_"))
 			{

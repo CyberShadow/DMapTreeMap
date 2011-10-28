@@ -101,7 +101,10 @@ $(document).ready(function() {
 
 				path.push(child.treeName);
 				if (path[0]=='/')
-					child.treePath = path.join('/').substr(1);
+					if (path.length==1)
+						child.treePath = "Filesystem objects";
+					else
+						child.treePath = path.join('/').substr(1);
 				else
 					child.treePath = path.join('.');
 
