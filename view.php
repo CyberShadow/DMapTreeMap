@@ -97,8 +97,12 @@ $(document).ready(function() {
 			var x = 0;
 			for (var i=0; i<n; i++) {
 				var child = children.shift();
+
 				path.push(child.treeName);
-				child.treePath = path.join('.');
+				if (path[0]=='/')
+					child.treePath = path.join('/').substr(1);
+				else
+					child.treePath = path.join('.');
 
 				if (child.color === undefined)
 					child.color = ((randomColor() & colorMask) | 0x202020 | (i%2*0x101010)) ^ data.color;

@@ -169,6 +169,24 @@ void main(string[] args)
 				segments = ["C symbols", str];
 			}
 			else
+			if (sym.startsWith("/"))
+			{
+				auto str = sym
+					.replace(" (", "(")
+					.replace("(", "/")
+					.replace(")", "");
+				segments = str.split("/");
+				segments[0] = "/";
+
+				int j = 0;
+				while (j < segments.length-1)
+					if (segments[j+1] == "..")
+						segments = segments[0..j] ~ segments[j+2..$],
+						j--;
+					else
+						j++;
+			}
+			else
 				segments = [sym];
 		}
 		if (end)
