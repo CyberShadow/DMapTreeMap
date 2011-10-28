@@ -100,7 +100,9 @@ $(document).ready(function() {
 				path.push(child.treeName);
 				child.treePath = path.join('.');
 
-				child.color = ((randomColor() & colorMask) | 0x202020 | (i%2*0x101010)) ^ data.color;
+				if (child.color === undefined)
+					child.color = ((randomColor() & colorMask) | 0x202020 | (i%2*0x101010)) ^ data.color;
+
 				var childW = child.size / rowTotal * w;
 				var left   = Math.floor(PADDING+x);
 				var top    = Math.floor(TOP_PADDING+y);
