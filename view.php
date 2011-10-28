@@ -193,4 +193,7 @@ $(document).ready(function() {
 		$(e.target).addClass('selected');
 	});
 });
+
+document.write('<style type="text/css">.nojs { display: none; }</style>');
 </script>
+<div class="nojs">Needs JavaScript (sorry, Nick!)</div>
