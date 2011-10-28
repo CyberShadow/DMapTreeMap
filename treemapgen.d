@@ -108,6 +108,12 @@ void main(string[] args)
 				dem = segments.join(".");
 			}
 			else
+			if (sym.startsWith("__d_"))
+			{
+				segments = ["D internals", sym[4..$]];
+				//dem = segments.join(".");
+			}
+			else
 				segments = [sym];
 		}
 
