@@ -124,6 +124,7 @@ $(document).ready(function() {
 
 	function arrange() {
 		rootDiv
+			.css("height", 0)
 			.css("height", $(document).height())
 			.empty();
 
