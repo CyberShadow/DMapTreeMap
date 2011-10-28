@@ -1,6 +1,7 @@
 import std.file;
 import std.string, std.conv, std.ascii, std.array;
 import std.exception;
+import std.process;
 import core.demangle;
 
 import ae.utils.json;
@@ -13,6 +14,29 @@ void main(string[] args)
 	enforce(args.length == 3, "Usage: "~args[0]~" input.map output.json");
 
 	auto map = new MapFile(args[1]);
+
+	string[string] cppSymbols;
+	{/+
+		string[] cppSymbolList;
+		foreach (symbol; map.symbols)
+			if (symbol.name.startsWith("?"))
+				cppSymbolList ~= symbol.name;
+
+		if (cppSymbolList.length)
+		{
+			auto fn = "cppsymbols.txt";
+			auto outfn = "cppsymbols-dem.txt";
+			std.file.write(fn, cppSymbolList.join("\n"));
+			scope(exit) if (exists(fn)) remove(fn);
+			system("c++filt < "~fn~" > "~outfn);
+			scope(exit) if (exists(outfn)) remove(outfn);
+			auto cppDemSymbolList = splitAsciiLines(cast(string)std.file.read(outfn));
+
+			if (cppDemSymbolList.length == cppSymbolList.length)
+				foreach (i; 0..cppSymbolList.length)
+					cppSymbols[cppSymbolList[i]] = cppDemSymbolList[i];
+		}
+	+/}
 
 	struct TreeLeaf
 	{
@@ -112,6 +136,11 @@ void main(string[] args)
 			{
 				segments = ["D internals", sym[4..$]];
 				//dem = segments.join(".");
+			}
+			else
+			if (sym in cppSymbols)
+			{
+				dem = cppSymbols[sym];
 			}
 			else
 				segments = [sym];
