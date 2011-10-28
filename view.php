@@ -51,7 +51,8 @@ $(document).ready(function() {
 		.appendTo($('body'));
 
 	function populate(div, data, path) {
-		var colorMask = (0xFF >> (path.length+1)) * 0x010101;
+		var level = Math.min(path.length+1, 4);
+		var colorMask = (0xFF >> level) * 0x010101;
 
 		div
 			.css('background-color', colorStr(data.color))
