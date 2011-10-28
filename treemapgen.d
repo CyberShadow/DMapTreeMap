@@ -1,5 +1,5 @@
 import std.file;
-import std.string, std.array;
+import std.string, std.conv, std.ascii, std.array;
 import std.exception;
 import core.demangle;
 
@@ -86,7 +86,30 @@ void main(string[] args)
 			}
 		}
 		else
-			segments = [dem];
+		{
+			if (sym.startsWith("_D") && sym.length>=4 && isDigit(sym[2]))
+			{
+				auto str = sym[2..$];
+				while (str.length)
+				{
+					try
+					{
+						auto len = parse!uint(str);
+						enforce(len <= str.length);
+						segments ~= str[0..len];
+						str = str[len..$];
+					}
+					catch (Exception e)
+					{
+						segments ~= str;
+						str = null;
+					}
+				}
+				dem = segments.join(".");
+			}
+			else
+				segments = [sym];
+		}
 
 		auto node = &root;
 		foreach (segment; segments[0..$-1])
