@@ -68,6 +68,19 @@ final class MapFile
 				if (addr && size)
 					symbols ~= Symbol(addr+size, END_PREFIX ~ name, index);
 			}
+
+			// OS X format
+			// 0x00001CCC	0x0000001C	[  4] _D6object7__arrayZ
+			auto tabs = line.split("\t");
+			if (tabs.length == 3 && tabs[0].startsWith("0x") && tabs[1].startsWith("0x") && tabs[2].startsWith("["))
+			{
+				auto addr = fromHex!ulong(tabs[0][2..$]);
+				auto size = fromHex!ulong(tabs[1][2..$]);
+				auto name = tabs[2][tabs[2].indexOf("] ")+2..$];
+				symbols ~= Symbol(addr, name, index);
+				if (size)
+					symbols ~= Symbol(addr+size, END_PREFIX ~ name, index);
+			}
 		}
 		sort!q{a.address == b.address ? a.index < b.index : a.address < b.address}(symbols);
 	}
