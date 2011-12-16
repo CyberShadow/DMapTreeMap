@@ -76,7 +76,7 @@ void main(string[] args)
 
 		size_t p = 0;
 		auto decoded = decodeDmdString(sym, p);
-		if (decoded.length)
+		if (decoded.length && sym.indexOf("/") < 0)
 			sym = decoded;
 
 		if (sym.startsWith("__D"))
@@ -130,7 +130,7 @@ void main(string[] args)
 					{
 						auto len = parse!uint(str);
 						enforce(len <= str.length);
-						segments ~= str[0..len];
+						segments ~= str[0..len].split("/");
 						str = str[len..$];
 					}
 					catch (Exception e)
@@ -141,6 +141,9 @@ void main(string[] args)
 					}
 				}
 				dem = segments.join(".");
+
+				if (segments[0].startsWith("TypeInfo_"))
+					segments = ["TypeInfo", segments[0][9..$]] ~ segments[1..$];
 			}
 			else
 			if (sym.startsWith("__d_"))
