@@ -73,7 +73,7 @@ void main(string[] args)
 		if (end && sym.endsWith("crtend.o (.eh_frame)"))
 			continue;
 
-		int p = 0;
+		uint p = 0;
 		auto decoded = decodeDmdString(sym, p);
 		if (decoded.length)
 			sym = decoded;
