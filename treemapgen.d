@@ -54,6 +54,7 @@ void main(string[] args)
 
 	TreeNode root;
 
+	enforce(map.symbols.length > 1, "No symbols");
 	foreach (i; 0..map.symbols.length-1)
 	{
 		auto addr  = map.symbols[i  ].address;
