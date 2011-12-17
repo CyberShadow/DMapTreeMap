@@ -118,7 +118,10 @@ void main(string[] args)
 		File f;
 
 		f.open(fn, "wt");
-		f.writeln(`<p><a href="`, setExtension(baseName(fn), "dot"), `">GraphViz .dot file</a></p><hr>`);
+		f.writeln(`<p><a href="`, setExtension(baseName(fn), "dot"), `">GraphViz .dot file</a></p>`);
+		if ("_Dmain" in syms)
+			f.writeln(`<p><a href="#_Dmain">Jump to D main()</a></p>`);
+		f.writeln(`<hr>`);
 		foreach (sym; syms.keys.sort)
 		{
 			f.writeln(`<h3 id="`, sym, `">`, syms[sym], `</h3>`);

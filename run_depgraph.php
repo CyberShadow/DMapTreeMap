@@ -5,7 +5,7 @@ if (!isset($_FILES['binfile'])) die('No file?');
 $id = uniqid();
 $fn = "data/$id.bin";
 
-if (!move_uploaded_file($_FILES['mapfile']['tmp_name'], $fn))
+if (!move_uploaded_file($_FILES['binfile']['tmp_name'], $fn))
 	die("Upload failed...");
 
 $retval = 1;
