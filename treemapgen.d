@@ -76,7 +76,7 @@ void main(string[] args)
 
 		size_t p = 0;
 		auto decoded = decodeDmdString(sym, p);
-		if (decoded.length && sym.indexOf("/") < 0)
+		if (decoded.length && p==sym.length)
 			sym = decoded;
 
 		if (sym.startsWith("__D"))
