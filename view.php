@@ -75,7 +75,7 @@ $(document).ready(function() {
 		if (!children.length)
 			return;
 
-		children.sort(function(a, b) { return b.size - a.size; });
+		children.sort(function(a, b) { return b.size!=a.size ? b.size - a.size : a.treeName.localeCompare(b.treeName); });
 		var w, h;
 
 		var w = div.width () - (    PADDING+PADDING);
