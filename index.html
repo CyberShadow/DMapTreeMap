@@ -2,9 +2,22 @@
 <title>D Map TreeMap Viewer</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-<form name="treemap" enctype="multipart/form-data" action="run.php" method="post">
+<h1>D Map TreeMap Viewer</h1>
+
+<form name="treemap" enctype="multipart/form-data" action="run_treemap.php" method="post">
   .map file: <input type="file" name="mapfile" />
   <input type="submit" value="Submit" style="width: auto;">
 </form>
 
-Privacy warning: map files are saved on the server (to allow persistent links). For private projects, grab the <a href="https://github.com/CyberShadow/DMapTreeMap">source</a>.
+<hr>
+
+<h1>D dependency explorer (direct function calls only)</h1>
+
+<form name="depgraph" enctype="multipart/form-data" action="run_depgraph.php" method="post">
+  Unstripped binary: <input type="file" name="binfile" />
+  <input type="submit" value="Submit" style="width: auto;">
+</form>
+
+<hr>
+
+Privacy warning: uploaded files are saved on the server (to allow persistent links). For private projects, grab the <a href="https://github.com/CyberShadow/DMapTreeMap">source</a>.
