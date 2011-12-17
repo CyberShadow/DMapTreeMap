@@ -1,2 +1,5 @@
 /data/
 /treemapgen
+*.exe
+*.map
+*.json
