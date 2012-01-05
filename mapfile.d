@@ -23,6 +23,8 @@ final class MapFile
 		bool parsing = false;
 		foreach (index, line; lines)
 		{
+			scope(failure) std.stdio.writeln(line);
+
 			// OPTLINK format
 			if (parsing)
 			{
@@ -44,13 +46,16 @@ final class MapFile
 			// LD format
 			//                 0x00000000080eaa10                _D20TypeInfo_E2WA6Nation6__initZ
 			//  .plt           0x00000000004415c0      0x8c0 /usr/lib/gcc/x86_64-linux-gnu/4.6.1/../../../x86_64-linux-gnu/crt1.o
+			//                 0x00000000       0x60 /usr/lib/gcc/i686-pc-linux-gnu/4.6.2/../../../libgphobos2.a(exception.o)
+
 			if (line.length > 45 && line[15..18]==" 0x")
 			{
 				auto seg  = strip(line[0..16]);
 				if (seg == ".comment")
 					continue;
-				auto addr = fromHex!ulong(strip(line[18..34]));
-				auto rest = split(strip(line[34..$]));
+				auto parts = line[18..$].split();
+				auto addr = fromHex!ulong(parts[0]);
+				auto rest = parts[1..$];
 				ulong size;
 				if (rest.length && rest[0].startsWith("0x"))
 				{
