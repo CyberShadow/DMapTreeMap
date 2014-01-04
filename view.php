@@ -216,6 +216,8 @@ $(document).ready(function() {
 			html += '<b>Address</b>: 0x' + mapdata.address.toString(16) + '<br>';
 
 		popup.innerHTML = html;
+		if (window.getSelection)
+			window.getSelection().removeAllRanges();
 
 		var selected = document.getElementsByClassName('selected');
 		for (var i in selected)
@@ -223,6 +225,23 @@ $(document).ready(function() {
 		t.className += ' selected';
 
 		selectedElement = t;
+	};
+
+	$rootDiv[0].onmousedown = function(e) {
+		if (document.body.createTextRange) { // ms
+			var range = document.body.createTextRange();
+			range.moveToElementText(popup);
+			range.select();
+		} else if (window.getSelection) { // moz, opera, webkit
+			var selection = window.getSelection();
+			var range = document.createRange();
+			range.selectNodeContents(popup);
+			selection.removeAllRanges();
+			selection.addRange(range);
+		}
+		e = e || window.event;
+		e.stopPropagation();
+		e.preventDefault();
 	};
 });
 
