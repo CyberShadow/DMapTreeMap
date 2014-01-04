@@ -57,7 +57,7 @@ $(document).ready(function() {
 
 		div.className = 'node';
 		div.style.backgroundColor = colorStr(data.color);
-		div.dataset.mapdata = JSON.stringify(data);
+		div.mapdata = data;
 		div.textContent = data.treeName;
 
 		var children = [];
@@ -190,14 +190,14 @@ $(document).ready(function() {
 			s.bottom = rootHeight - e.clientY + POPUP_DISTANCE + 'px';
 		}
 
-		if (e.target == selectedElement)
+		var t = e.target;
+		if (t == selectedElement)
 			return;
-		selectedElement = e.target;
 
 		s.maxWidth  = rootWidth /2 - POPUP_DISTANCE*2 + 'px';
 		s.maxHeight = rootHeight/2 - POPUP_DISTANCE*2 + 'px';
 
-		var mapdata = JSON.parse(e.target.dataset.mapdata);
+		var mapdata = t.mapdata;
 		var html = '';
 		if (mapdata.mangledName !== undefined)
 			html += '<b>Mangled name</b>: ' + mapdata.mangledName + '<br>';
@@ -220,7 +220,9 @@ $(document).ready(function() {
 		var selected = document.getElementsByClassName('selected');
 		for (var i in selected)
 			selected[i].className = 'node';
-		e.target.className += ' selected';
+		t.className += ' selected';
+
+		selectedElement = t;
 	};
 });
 
