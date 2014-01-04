@@ -23,6 +23,7 @@ final class MapFile
 		bool parsing = false;
 		foreach (index, line; lines)
 		{
+			line = forceValidUTF8(line);
 			scope(failure) std.stdio.writeln(line);
 
 			// OPTLINK format
