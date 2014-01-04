@@ -19,7 +19,7 @@ string[] parseDSymbol(string sym, out string dem)
 	if (sym.startsWith("__D"))
 		sym = sym[1..$];
 
-	int p;
+	sizediff_t p;
 	dem = demangle(sym).idup;
 	string[] segments;
 	if (dem != sym)
