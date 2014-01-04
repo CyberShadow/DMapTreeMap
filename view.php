@@ -11,6 +11,7 @@ body {
 	position: absolute;
 	font-family: sans-serif;
 	font-size: 7pt;
+	line-height: 8pt;
 	overflow: hidden;
 	word-wrap: break-word;
 	text-align: center;
