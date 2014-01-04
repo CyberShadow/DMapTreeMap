@@ -86,16 +86,18 @@ $(document).ready(function() {
 
 		while (children.length)
 		{
-			var n = 0;
-			var rowTotal = 0;
+			var rowTotal = 0, rowHeight = 0;
 
-			do
+			for (var n=0; n<children.length; n++)
 			{
-				rowTotal += children[n].size;
-				n++;
-				var rowHeight = rowTotal / data.total * h;
+				var newTotal = rowTotal + children[n].size;
+				var newHeight = newTotal / data.total * h;
+				var childWidth = children[n].size / newTotal * w;
+				if (n && childWidth < newHeight)
+					break;
+				rowTotal = newTotal;
+				rowHeight = newHeight;
 			}
-			while (rowHeight < w/n && n < children.length);
 
 			var x = 0;
 			for (var i=0; i<n; i++) {
