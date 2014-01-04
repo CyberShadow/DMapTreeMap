@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <title>D Map TreeMap Viewer for map file <?=htmlspecialchars($_GET['id'])?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<?='<script src="data/' . htmlspecialchars($_GET['id']) . '.json"></script>'?>
+<?php print '<script src="data/' . htmlspecialchars($_GET['id']) . '.json"></script>' ?>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 <style>
 body {
