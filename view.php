@@ -45,21 +45,20 @@ function randomColor() {
 }
 
 $(document).ready(function() {
-	var rootDiv = $('<div>')
+	var $rootDiv = $('<div>')
 		.css('top', '0')
 		.css('left', '0')
 		.css('width', '100%')
 		.appendTo($('body'));
 
-	function populate(div, data, path) {
+	function populate(div, data, path, w, h) {
 		var level = Math.min(path.length+1, 4);
 		var colorMask = (0xFF >> level) * 0x010101;
 
-		div
-			.css('background-color', colorStr(data.color))
-			.addClass('node')
-			.data('mapdata', data)
-			.text(data.treeName);
+		div.className = 'node';
+		div.style.backgroundColor = colorStr(data.color);
+		div.dataset.mapdata = JSON.stringify(data);
+		div.textContent = data.treeName;
 
 		var children = [];
 		for (var name in data.children) {
@@ -77,10 +76,9 @@ $(document).ready(function() {
 			return;
 
 		children.sort(function(a, b) { return b.size!=a.size ? b.size - a.size : a.treeName.localeCompare(b.treeName); });
-		var w, h;
 
-		var w = div.width () - (    PADDING+PADDING);
-		var h = div.height() - (TOP_PADDING+PADDING);
+		w -=     PADDING+PADDING;
+		h -= TOP_PADDING+PADDING;
 		if (w<=0 || h<=0) return;
 		var y = 0;
 
@@ -120,15 +118,16 @@ $(document).ready(function() {
 				var top    = Math.floor(TOP_PADDING+y);
 				var right  = Math.floor(PADDING+x+childW);
 				var bottom = Math.floor(TOP_PADDING+y+rowHeight);
-				var childDiv = $('<div>')
-					.css('left',   left+'px')
-					.css('top',    top +'px')
-					.css('width',  right-left+'px')
-					.css("height", bottom-top+'px')
-					.appendTo(div);
+				var childDiv = document.createElement('div');
+				childDiv.className    = 'node';
+				childDiv.style.left   = left+'px';
+				childDiv.style.top    = top +'px';
+				childDiv.style.width  = right-left+'px';
+				childDiv.style.height = bottom-top+'px';
+				div.appendChild(childDiv);
 				x += childW;
 
-				populate(childDiv, child, path);
+				populate(childDiv, child, path, right-left, bottom-top);
 				path.pop();
 			}
 
@@ -136,15 +135,20 @@ $(document).ready(function() {
 		}
 	}
 
+	var rootWidth, rootHeight;
+
 	function arrange() {
-		rootDiv
+		$rootDiv
 			.css("height", 0)
 			.css("height", $(document).height())
 			.empty();
 
+		rootWidth  = $rootDiv.width ();
+		rootHeight = $rootDiv.height();
+
 		treeData.treeName = treeData.treePath = 'Program';
 		treeData.color = 0xFFFFFF;
-		populate(rootDiv, treeData, []);
+		populate($rootDiv[0], treeData, [], rootWidth, rootHeight);
 	}
 
 	var resizeTimer = null;
@@ -159,31 +163,41 @@ $(document).ready(function() {
 
 	arrange();
 
-	var popup = $('<div>')
-		.addClass('popup')
-		.appendTo($('body'));
+	var popup = document.createElement('div');
+	popup.className = 'popup';
+	document.body.appendChild(popup);
 
-	$('.node').live('mousemove', function(e) {
-		if (e.clientX < rootDiv.width()/2) {
-			popup.css('left' , e.clientX+POPUP_DISTANCE);
-			popup.css('right', '');
+	var selectedElement = null;
+
+	$rootDiv[0].onmousemove = function(e) {
+		e = e || window.event;
+		e.stopPropagation();
+
+		var s = popup.style;
+		if (e.clientX < rootWidth/2) {
+			s.right  = '';
+			s.left   =              e.clientX + POPUP_DISTANCE + 'px';
 		} else {
-			popup.css('left', '');
-			popup.css('right' , $(document).width() - e.clientX + POPUP_DISTANCE);
+			s.left   = '';
+			s.right  = rootWidth  - e.clientX + POPUP_DISTANCE + 'px';
 		}
 
-		if (e.clientY < rootDiv.height()/2) {
-			popup.css('top' , e.clientY+POPUP_DISTANCE);
-			popup.css('bottom', '');
+		if (e.clientY < rootHeight/2) {
+			s.bottom = '';
+			s.top    =              e.clientY + POPUP_DISTANCE + 'px';
 		} else {
-			popup.css('top', '');
-			popup.css('bottom' , $(document).height() - e.clientY + POPUP_DISTANCE);
+			s.top    = '';
+			s.bottom = rootHeight - e.clientY + POPUP_DISTANCE + 'px';
 		}
-		popup.css('max-width' , rootDiv.width ()/2 - POPUP_DISTANCE*2);
-		popup.css('max-height', rootDiv.height()/2 - POPUP_DISTANCE*2);
 
+		if (e.target == selectedElement)
+			return;
+		selectedElement = e.target;
 
-		var mapdata = $(e.target).data('mapdata');
+		s.maxWidth  = rootWidth /2 - POPUP_DISTANCE*2 + 'px';
+		s.maxHeight = rootHeight/2 - POPUP_DISTANCE*2 + 'px';
+
+		var mapdata = JSON.parse(e.target.dataset.mapdata);
 		var html = '';
 		if (mapdata.mangledName !== undefined)
 			html += '<b>Mangled name</b>: ' + mapdata.mangledName + '<br>';
@@ -201,11 +215,13 @@ $(document).ready(function() {
 		if (mapdata.address !== undefined)
 			html += '<b>Address</b>: 0x' + mapdata.address.toString(16) + '<br>';
 
-		popup.html(html);
+		popup.innerHTML = html;
 
-		$('.selected').removeClass('selected');
-		$(e.target).addClass('selected');
-	});
+		var selected = document.getElementsByClassName('selected');
+		for (var i in selected)
+			selected[i].className = 'node';
+		e.target.className += ' selected';
+	};
 });
 
 document.write('<style type="text/css">.nojs { display: none; }</style>');
