@@ -26,7 +26,7 @@ final class MapFile
 			line = forceValidUTF8(line);
 			scope(failure) std.stdio.writeln(line);
 
-			// OPTLINK format
+			// OPTLINK / MS link format
 			if (parsing)
 			{
 				if (line.length > 30 && line[5]==':' && line[17]==' ')
@@ -35,7 +35,10 @@ final class MapFile
 					Symbol s;
 					auto line2 = line[21..$];
 					s.name = line2[0..line2.indexOf(' ')];
-					s.address = fromHex(line2[$-8..$]);
+					auto segments = line2.split();
+					if (segments.length < 2)
+						continue;
+					s.address = fromHex(segments[1]);
 					s.index = index;
 					symbols ~= s;
 				}
