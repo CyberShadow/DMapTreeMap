@@ -1,5 +1,6 @@
 /data/
 /treemapgen
+/depgraph
 *.exe
 *.map
 *.json
