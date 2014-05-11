@@ -144,6 +144,9 @@ string[] parseDSymbol(string sym, out string dem)
 			segments = ["C symbols", str];
 	}
 	else
+	if (sym.startsWith("gc_"))
+		segments = ["gc", sym];
+	else
 	if (sym.startsWith("/"))
 	{
 		auto str = sym
@@ -161,6 +164,9 @@ string[] parseDSymbol(string sym, out string dem)
 			else
 				j++;
 	}
+	else
+	if (sym.endsWith(" (*fill*)"))
+		segments = ["(*fill*)", sym];
 	else
 	if (sym == "internal" || sym == "anon")
 		segments = [sym, ""];
