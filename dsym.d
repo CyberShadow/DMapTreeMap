@@ -1,11 +1,13 @@
 module dsym;
 
-import std.string;
-import std.conv;
-import std.ascii;
-import std.array;
-import std.exception;
 import core.demangle;
+
+import std.algorithm.mutation : reverse;
+import std.array;
+import std.ascii;
+import std.conv;
+import std.exception;
+import std.string;
 
 string[] parseDSymbol(string sym, out string dem)
 {
@@ -103,7 +105,8 @@ string[] parseDSymbol(string sym, out string dem)
 			while (sym.length && sym[0].isDigit())
 				sym = sym[1..$];
 			sym = sym[0..sym.indexOf("@@")];
-			segments = sym.split("@").reverse;
+			segments = sym.split("@");
+			segments.reverse();
 			dem = segments.join("::");
 		}
 		else
@@ -213,7 +216,7 @@ string[] rlSplitForce(string str)
 		enforce(s.length);
 		return rlSplit(s);
 	}
-	catch
+	catch (Exception e)
 		return [str];
 }
 
