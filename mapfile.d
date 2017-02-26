@@ -5,6 +5,7 @@ import std.file;
 import std.stdio : stderr;
 import std.string;
 
+import ae.utils.array;
 import ae.utils.text;
 
 enum END_PREFIX = "END\t";
@@ -22,6 +23,7 @@ final class MapFile
 	{
 		auto lines = splitAsciiLines(cast(string)read(fileName));
 		bool parsing = false;
+		ulong totalSize;
 		foreach (index, line; lines)
 		{
 			line = forceValidUTF8(line);
@@ -91,7 +93,21 @@ final class MapFile
 				if (size)
 					symbols ~= Symbol(addr+size, END_PREFIX ~ name, index);
 			}
+
+			// nm -S format
+			// 0000000000000000 0000000000000063 T handleSignal
+			// Note: nm doesn't list offsets, only sizes
+			{
+				auto fields = line.split(" ");
+				if (fields.length == 4 && fields[0].length.isOneOf(8, 16) && fields[1].length == fields[0].length && fields[2].length == 1)
+				{
+					symbols ~= Symbol(totalSize, fields[3], index);
+					totalSize += fromHex!ulong(fields[1]);
+				}
+			}
 		}
+		if (totalSize)
+			symbols ~= Symbol(totalSize, "(end)", lines.length);
 		sort!q{a.address == b.address ? a.index < b.index : a.address < b.address}(symbols);
 	}
 
