@@ -1,8 +1,9 @@
 module mapfile; // salvaged from Diamond
 
+import std.algorithm.sorting : sort;
 import std.file;
+import std.stdio : stderr;
 import std.string;
-import std.algorithm : sort;
 
 import ae.utils.text;
 
@@ -24,7 +25,7 @@ final class MapFile
 		foreach (index, line; lines)
 		{
 			line = forceValidUTF8(line);
-			scope(failure) std.stdio.writeln(line);
+			scope(failure) stderr.writeln(line);
 
 			// OPTLINK / MS link format
 			if (parsing)
