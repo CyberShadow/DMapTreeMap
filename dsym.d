@@ -3,6 +3,7 @@ module dsym;
 import core.demangle;
 
 import std.algorithm.mutation : reverse;
+import std.algorithm.searching;
 import std.array;
 import std.ascii;
 import std.conv;
@@ -67,6 +68,22 @@ string[] parseDSymbol(string sym, out string dem)
 					.replace([SUB_SPACE], " ")
 					.replace([SUB_PERIOD], ".");
 			}
+
+			if (segments[0].startsWith("TypeInfo_"))
+			{
+				// _D71TypeInfo_S4core3sys7windows8setupapi11__mixin114220SP_DRVINFO_DATA_V2_W6__initZ
+				// TypeInfo_S4core3sys7windows8setupapi11__mixin114220SP_DRVINFO_DATA_V2_W.__init
+				auto tiDigit = segments[0].representation.countUntil!isDigit;
+				if (tiDigit > 0)
+				{
+					auto tiType = segments[0][9..tiDigit];
+					auto tiSym = "_D" ~ segments[0][tiDigit..$] ~ "Z";
+					auto tiDem = demangle(tiSym).idup;
+					if (tiSym != tiDem)
+						segments = tiDem.split(".") ~ ["TypeInfo" ~ (tiType.length ? "_" : "") ~ tiType] ~ segments[1..$];
+				}
+			}
+
 			return segments;
 		}
 		// core.demangle failed, use simpler algorithm
