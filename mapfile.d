@@ -38,7 +38,7 @@ final class MapFile
 					Symbol s;
 					auto line2 = line[21..$];
 					s.name = line2[0..line2.indexOf(' ')];
-					auto segments = line2.split();
+					auto segments = line2.asciiSplit();
 					if (segments.length < 2)
 						continue;
 					s.address = fromHex(segments[1]);
