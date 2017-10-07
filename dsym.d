@@ -12,12 +12,14 @@ import std.string;
 
 string[] parseDSymbol(string sym, out string dem)
 {
+	try
 	{
 		size_t p = 0;
 		auto decoded = decodeDmdString(sym, p);
 		if (decoded.length && p==sym.length)
 			sym = decoded;
 	}
+	catch (Throwable t) {}
 
 	if (sym.startsWith("__D"))
 		sym = sym[1..$];
